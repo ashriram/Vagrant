@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+   hostname = "C++.box"
+    locale = "en_GB.UTF.8"
+  
+    config.vm.box = "ubuntu/xenial64"
+
+
+    # IP address
+    config.vm.network "public_network", ip:"192.168.1.99", bridge: "en0: Wi-Fi (AirPort)"
+    config.ssh.forward_agent = true
+
+    # Shared folders
+      # config.vm.synced_folder "./data", "/vagrant_data"
+
+
+    # Setup
+    config.vm.provision :shell, :inline => "touch .hushlogin"
+    config.vm.provision :shell, :inline => "hostnamectl set-hostname #{hostname} && locale-gen #{locale}"
+    config.vm.provision :shell, :inline => "apt-get update --fix-missing"
+    config.vm.provision :shell, :inline => "apt-get install -q -y g++ make git curl vim"
+
+    # Custom script
+    config.vm.provision :shell, :path => "bootstrap.sh"
+
+    config.vm.provider :virtualbox do |v|
+        v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+        v.customize ["modifyvm", :id, "--memory", 4096, "--cpus", "2"]
+    end
+end
+
+
+
